@@ -1,0 +1,15 @@
+# IntelliJ files
+*.iml
+.idea
+.vscode
+
+# I/O files
+input_traces
+results/sim_output
+
+# Compilation output
+target
+jobscripts
+*.out
+*.err
+*.log
