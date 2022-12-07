@@ -32,30 +32,19 @@ class FastestMachinePlacement : TaskPlacementPolicy {
                         (runTimeOnThisMachine / 1000 / 3600)  // ms to seconds to hours to get Wh
 
                 
-                var cpusLeft = totalFreeCpu - resourcesToUse
+                // var cpusLeft = totalFreeCpu - resourcesToUse
                 // println(" - - - - - - CPUsLeft is ${cpusLeft} - - - - - - ")
                 // println(" - - - - - - ResourcesToUse is ${resourcesToUse} - - - - - - ")
 
-                var idleConsumption = 900 / currentMachine.machine.numberOfCpus * cpusLeft * 900
+                // var idleConsumption = 900 / currentMachine.machine.numberOfCpus * currentMachine.freeCpus * 900
                 
-                if (task.originalRuntime > 900000) {
-                    println(" - - - - - - totalFreeCpu is ${totalFreeCpu} - - - - - - ")
-                    println(" - - - - - - resourcesToUse is ${resourcesToUse} - - - - - - \n")
-                }
+                val instantConsumptionOnThisMachineJoules = currentMachine.machine.computeEnergyConsumption(currentMachine.freeCpus)
 
-                val energyConsumptionOnThisMachineJoules = (currentMachine.TDP.toDouble() /
-                        currentMachine.machine.numberOfCpus *
-                        resourcesToUse *
-                        (runTimeOnThisMachine / 1000) ) + idleConsumption // conversion to Joules
-                        // currentMachine.idleEnergyConsumption(cpusLeft)
+                println("- - - - ${instantConsumptionOnThisMachineJoules} - - - -")
 
-                // Update machine metrics
-                // if (energyConsumptionOnThisMachineJoules > 0) {
-                    currentMachine.machine.instantEnergyConsumption = energyConsumptionOnThisMachineJoules
-                // } else {
-                //     currentMachine.machine.
-                // }
+                currentMachine.machine.instantEnergyConsumption = instantConsumptionOnThisMachineJoules
 
+                
 
                 // Update task metrics
                 task.runTime = max(task.runTime, ceil(runTimeOnThisMachine).toLong())
@@ -64,9 +53,17 @@ class FastestMachinePlacement : TaskPlacementPolicy {
                 totalFreeCpu -= resourcesToUse
                 coresLeft -= resourcesToUse
 
-                if (currentMachine.freeCpus == 0 && machineStates.hasNext()) {
+                // Round Robin
+                if (machineStates.hasNext()) {
                     currentMachine = machineStates.next()
+                } else {
+                    currentMachine = callbacks.getMachineStatesByDescendingMachineSpeed().next()
                 }
+
+                // Original
+                // if (currentMachine.freeCpus == 0 && machineStates.hasNext()) {
+                //     currentMachine = machineStates.next()
+                // }
             }
         }
     }

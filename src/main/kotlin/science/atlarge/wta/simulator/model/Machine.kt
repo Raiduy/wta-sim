@@ -24,16 +24,15 @@ class Machine(
         idleTDP = 100 * 9 // idle TDP is 100W, and there are 9 machines
 
         // calculate idle consumption
-        instantEnergyConsumption = idleEnergyConsumption(numberOfCpus)
+        instantEnergyConsumption = computeEnergyConsumption(numberOfCpus)
     }
 
-    fun idleEnergyConsumption(numOfIdleCpus: Int): Double {
-        var res = idleTDP.toDouble() / numberOfCpus * numOfIdleCpus * 900
-        // println(" - - - - - - idleTDP function is ${idleTDP.toDouble()} - - - - - - ")
-        // println(" - - - - - - numberOfCpus function is ${numberOfCpus} - - - - - - ")
-        // println(" - - - - - - numOfIdleCpus function is ${numOfIdleCpus} - - - - - - ")
-        // println(" - - - - - - idleEnergy function is ${res} - - - - - - ")
-        return res
+    fun computeEnergyConsumption(numOfIdleCpus: Int): Double {
+        val numOfBusyCpus = numberOfCpus - numOfIdleCpus
+        val idleConsumption = idleTDP.toDouble() / numberOfCpus * numOfIdleCpus * 900
+        val busyConsumption = TDP.toDouble() / numberOfCpus * numOfBusyCpus * 900
+    
+        return idleConsumption + busyConsumption
     }
 
     override fun equals(other: Any?): Boolean {

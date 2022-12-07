@@ -2,6 +2,7 @@
 import itertools
 import os
 import subprocess
+import shutil
 
 job_directory = "jobscripts"
 os.makedirs(job_directory, exist_ok=True)
@@ -9,7 +10,18 @@ os.makedirs(job_directory, exist_ok=True)
 trace_dir = "/home/radu/Thesis/wta-sim/input_traces/"
 output_location = "/home/radu/Thesis/wta-sim/results/sim_output/"
 slack_location = "/home/radu/Thesis/wta-sim/results/look_ahead/"
-test_input = "pegasus_p2_parquet"
+test_input = "pegasus_p7_parquet"
+
+for filename in os.listdir(output_location):
+    file_path = os.path.join(output_location, filename)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s.\nReason: %s' % (file_path, e))
+            
 
 # Laurens machines
 # machine_resources = [128, 12]
@@ -37,7 +49,7 @@ number_of_machines_per_DC = ["9"]
 task_selection_policies = ["fcfs"]
 task_placement_policies = ["fastest_machine"]#, "look_ahead"]
 dvfs = True
-datacentres = ["1"]#, "2"]
+datacentres = ["2"]#, "2"]
 
 
 ## -------- Test for env_stats ---------
@@ -64,7 +76,8 @@ for folder in next(os.walk(trace_dir))[1]:
     print("***************found it*****************")
     for tpp, dcs in itertools.product(task_placement_policies, datacentres):
 
-        experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}"
+        experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}_roundRobin"
+        experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}_roundRobin"
         # experiment_name = f"{folder}_ENV_STATS_TEST"
         output_dir = os.path.join(output_location, experiment_name)
         if os.path.exists(output_dir):
