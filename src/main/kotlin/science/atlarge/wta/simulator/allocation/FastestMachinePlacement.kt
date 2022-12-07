@@ -31,20 +31,10 @@ class FastestMachinePlacement : TaskPlacementPolicy {
                         resourcesToUse *
                         (runTimeOnThisMachine / 1000 / 3600)  // ms to seconds to hours to get Wh
 
-                
-                // var cpusLeft = totalFreeCpu - resourcesToUse
-                // println(" - - - - - - CPUsLeft is ${cpusLeft} - - - - - - ")
-                // println(" - - - - - - ResourcesToUse is ${resourcesToUse} - - - - - - ")
-
-                // var idleConsumption = 900 / currentMachine.machine.numberOfCpus * currentMachine.freeCpus * 900
-                
                 val instantConsumptionOnThisMachineJoules = currentMachine.machine.computeEnergyConsumption(currentMachine.freeCpus)
 
-                println("- - - - ${instantConsumptionOnThisMachineJoules} - - - -")
-
+                // Update machine metrics
                 currentMachine.machine.instantEnergyConsumption = instantConsumptionOnThisMachineJoules
-
-                
 
                 // Update task metrics
                 task.runTime = max(task.runTime, ceil(runTimeOnThisMachine).toLong())
@@ -57,7 +47,9 @@ class FastestMachinePlacement : TaskPlacementPolicy {
                 if (machineStates.hasNext()) {
                     currentMachine = machineStates.next()
                 } else {
-                    currentMachine = callbacks.getMachineStatesByDescendingMachineSpeed().next()
+                    val roundRobin = callbacks.getMachineStatesByDescendingMachineSpeed()
+                    if (!roundRobin.hasNext()) return
+                    currentMachine = roundRobin.next()
                 }
 
                 // Original

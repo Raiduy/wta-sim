@@ -12,6 +12,7 @@ output_location = "/home/radu/Thesis/wta-sim/results/sim_output/"
 slack_location = "/home/radu/Thesis/wta-sim/results/look_ahead/"
 test_input = "pegasus_p7_parquet"
 
+# Cleans output folder before exporting
 for filename in os.listdir(output_location):
     file_path = os.path.join(output_location, filename)
     try:
@@ -47,9 +48,9 @@ machine_fractions = [1]
 ## -------- Finalized experiments -------
 number_of_machines_per_DC = ["9"]
 task_selection_policies = ["fcfs"]
-task_placement_policies = ["fastest_machine"]#, "look_ahead"]
+task_placement_policies = ["fastest_machine", "look_ahead"]
 dvfs = True
-datacentres = ["2"]#, "2"]
+datacentres = ["1", "2"]
 
 
 ## -------- Test for env_stats ---------
@@ -76,8 +77,7 @@ for folder in next(os.walk(trace_dir))[1]:
     print("***************found it*****************")
     for tpp, dcs in itertools.product(task_placement_policies, datacentres):
 
-        experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}_roundRobin"
-        experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}_roundRobin"
+        experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}"
         # experiment_name = f"{folder}_ENV_STATS_TEST"
         output_dir = os.path.join(output_location, experiment_name)
         if os.path.exists(output_dir):
