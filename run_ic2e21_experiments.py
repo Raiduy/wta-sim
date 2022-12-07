@@ -10,7 +10,7 @@ os.makedirs(job_directory, exist_ok=True)
 trace_dir = "/home/radu/Thesis/wta-sim/input_traces/"
 output_location = "/home/radu/Thesis/wta-sim/results/sim_output/"
 slack_location = "/home/radu/Thesis/wta-sim/results/look_ahead/"
-test_input = "pegasus_p7_parquet"
+# test_input = "pegasus_p7_parquet"
 
 # Cleans output folder before exporting
 for filename in os.listdir(output_location):
@@ -64,17 +64,15 @@ datacentres = ["1", "2"]
 subprocess.run("mvn package", shell=True)
 
 for folder in next(os.walk(trace_dir))[1]:
-    # if folder == "alibaba_from_flat" or folder == "alibaba_first_10k_wfids_parquet":
-    #     continue  # Do not load the entire (too big) or the smaller 10k alibaba trace (for testing)
+    if folder == "alibaba_from_flat" or folder == "alibaba_first_10k_wfids_parquet":
+        continue  # Do not load the entire (too big) or the smaller 10k alibaba trace (for testing)
 
-    # if "google" in str(folder).lower(): continue
-    # if "lanl" in str(folder).lower(): 
-    #     # print("isLANL")
-    #     continue
-    # if "two_sigma" in str(folder).lower(): continue
-    if test_input not in str(folder).lower(): 
+    if "google" in str(folder).lower(): continue
+    if "lanl" in str(folder).lower(): 
+        # print("isLANL")
         continue
-    print("***************found it*****************")
+    if "two_sigma" in str(folder).lower(): continue
+
     for tpp, dcs in itertools.product(task_placement_policies, datacentres):
 
         experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}"
