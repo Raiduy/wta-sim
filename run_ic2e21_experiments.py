@@ -2,6 +2,7 @@
 import itertools
 import os
 import subprocess
+import shutil
 
 job_directory = "jobscripts"
 os.makedirs(job_directory, exist_ok=True)
@@ -9,7 +10,19 @@ os.makedirs(job_directory, exist_ok=True)
 trace_dir = "/home/radu/Thesis/wta-sim/input_traces/"
 output_location = "/home/radu/Thesis/wta-sim/results/sim_output/"
 slack_location = "/home/radu/Thesis/wta-sim/results/look_ahead/"
-test_input = "pegasus_p2_parquet"
+# test_input = "pegasus_p7_parquet"
+
+# Cleans output folder before exporting
+for filename in os.listdir(output_location):
+    file_path = os.path.join(output_location, filename)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s.\nReason: %s' % (file_path, e))
+            
 
 # Laurens machines
 # machine_resources = [128, 12]
@@ -35,9 +48,9 @@ machine_fractions = [1]
 ## -------- Finalized experiments -------
 number_of_machines_per_DC = ["9"]
 task_selection_policies = ["fcfs"]
-task_placement_policies = ["fastest_machine"]#, "look_ahead"]
+task_placement_policies = ["fastest_machine", "look_ahead"]
 dvfs = True
-datacentres = ["1"]#, "2"]
+datacentres = ["1", "2"]
 
 
 ## -------- Test for env_stats ---------
@@ -51,17 +64,15 @@ datacentres = ["1"]#, "2"]
 subprocess.run("mvn package", shell=True)
 
 for folder in next(os.walk(trace_dir))[1]:
-    # if folder == "alibaba_from_flat" or folder == "alibaba_first_10k_wfids_parquet":
-    #     continue  # Do not load the entire (too big) or the smaller 10k alibaba trace (for testing)
+    if folder == "alibaba_from_flat" or folder == "alibaba_first_10k_wfids_parquet":
+        continue  # Do not load the entire (too big) or the smaller 10k alibaba trace (for testing)
 
-    # if "google" in str(folder).lower(): continue
-    # if "lanl" in str(folder).lower(): 
-    #     # print("isLANL")
-    #     continue
-    # if "two_sigma" in str(folder).lower(): continue
-    if test_input not in str(folder).lower(): 
+    if "google" in str(folder).lower(): continue
+    if "lanl" in str(folder).lower(): 
+        # print("isLANL")
         continue
-    print("***************found it*****************")
+    if "two_sigma" in str(folder).lower(): continue
+
     for tpp, dcs in itertools.product(task_placement_policies, datacentres):
 
         experiment_name = f"{folder}_tpp_{tpp}_dcs_{dcs}"

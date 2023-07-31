@@ -58,10 +58,7 @@ class LookAheadPlacement : TaskPlacementPolicy {
                         resourcesToUse *
                         (runTimeOnThisMachine / 1000 / 3600)  // ms to seconds to hours to get Wh
                 
-                var energyConsumptionOnThisMachineJoules = machineState.TDP.toDouble() /
-                        machineState.machine.numberOfCpus *
-                        resourcesToUse *
-                        (runTimeOnThisMachine / 1000)  // conversion to Joules
+                var instantConsumptionOnThisMachineJoules = machineState.machine.computeEnergyConsumption(machineState.freeCpus)
 
                 // Check if DVFS is enabled to see if we can get further gains
                 if (machineState.dvfsEnabled && runTimeOnThisMachine < (task.originalRuntime + slackLeft)) {
@@ -78,11 +75,11 @@ class LookAheadPlacement : TaskPlacementPolicy {
                         )
                     runTimeOnThisMachine *= additionalSlowdown
                     energyConsumptionOnThisMachine *= (1 - machineState.dvfsOptions[additionalSlowdown]!!)
-                    energyConsumptionOnThisMachineJoules *= (1 - machineState.dvfsOptions[additionalSlowdown]!!)
+                    instantConsumptionOnThisMachineJoules *= (1 - machineState.dvfsOptions[additionalSlowdown]!!)
                 }
 
                 // Update machine metrics
-                machineState.machine.instantEnergyConsumption = energyConsumptionOnThisMachineJoules
+                machineState.machine.instantEnergyConsumption = instantConsumptionOnThisMachineJoules
 
                 // Update task metrics
                 task.runTime = max(task.runTime, ceil(runTimeOnThisMachine).toLong())
